@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
    GameItemAdapter adapter;
     Button startButton;
     RecyclerView recyclerView;
-    private List<Integer> numberList = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9)); // Change here
     private ArrayList<GameItem> gameList = new ArrayList<>(); // Change here
 
 
@@ -67,10 +66,11 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         });
        mediaPlayer = MediaPlayer.create(this, R.raw.shake);
        fillData();
-        adapter = new GameItemAdapter(gameList,this); // Pass RecyclerView here
+        adapter = new GameItemAdapter(gameList, this); // Pass RecyclerView here
 
         recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setAdapter(adapter);
+        // Example data update
 
 
         tts=new TextToSpeech(this,this);
@@ -91,14 +91,14 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         }
     }
     @Override
-    public void onItemClick(GameItem gameItem) {
+    public void onItemClick(GameItem gameItem,int position) {
         if (!gameStarted) {
             YoYo.with(Techniques.Shake).duration(500).repeat(3).playOn(startButton);
             return;
         }
 
 
-       // YoYo.with(Techniques.Bounce).duration(500).repeat(3).playOn(tv);
+
         YoYo.with(Techniques.FadeInDown).duration(1000).playOn(rightWrongText);
         YoYo.with(Techniques.FadeInDown).duration(1000).playOn(countText);
 
@@ -110,10 +110,18 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             if(soundOn)mediaPlayer.start();
             rightWrongText.setText("right");
             gameStarted = false;
+            // Update all items to make images visible
+            for (GameItem item : gameList) {
+                item.setCardShown(true); // Make all images visible
+            }
+            // Make the clicked item's image view Invisible
             gameItem.setCardShown(false);
+            adapter.notifyDataSetChanged();
+
+
             if (soundOn)
                 tts.speak("You are Winner", TextToSpeech.QUEUE_FLUSH, null, null);
-            timerTv();
+          //  timerTv();
 
         } else {
             rightWrongText.setText("wrong");
@@ -124,11 +132,9 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         if (wrongs == 3) {
             Toast.makeText(this, "game over", Toast.LENGTH_SHORT).show();
             gameStarted = false;
-
-        }
-        if (!gameStarted) {
             resetData();
         }
+
 
 
 
@@ -153,10 +159,6 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
 
     }
 
-    @Override
-    public void resetGame() {
-
-    }
 
     @Override
     protected void onStop() {
@@ -195,8 +197,7 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
         Toast.makeText(this, ""+ guessedNumber, Toast.LENGTH_LONG).show();
     }
     void resetData() {
-        // Clear the existing game items from the adapter and the list
-        adapter.notifyDataSetChanged(); // Notify adapter that data will be changed
+
 
         // Shuffle the gameList to randomize the items
         Collections.shuffle(gameList);
@@ -206,9 +207,8 @@ public class MainActivity extends AppCompatActivity implements TextToSpeech.OnIn
             gameItem.setCardShown(true);
             gameItem.setGameStared(true);// Reset properties as needed
         }
+       adapter.notifyDataSetChanged();
 
-        // Set the updated list to the adapter
-        adapter.setGameItems(gameList);
     }
     @Override
     public void onInit(int status) {

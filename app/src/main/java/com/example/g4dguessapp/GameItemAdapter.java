@@ -1,4 +1,5 @@
 package com.example.g4dguessapp;
+import android.annotation.SuppressLint;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,15 +30,27 @@ public class GameItemAdapter extends RecyclerView.Adapter<GameItemAdapter.GameIt
         this.gameItems = gameItems;
         this.onItemClickListener = onItemClickListener;
     }
-   public void setGameItems(ArrayList<GameItem> gameItems){
+    public void setGameItems(ArrayList<GameItem> gameItems){
         this.gameItems = gameItems;
 
-   }
+    }
     @NonNull
     @Override
     public GameItemViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_game, parent, false);
         return new GameItemViewHolder(view);
+    }
+    @SuppressLint("NotifyDataSetChanged")
+    public void updateData(ArrayList<GameItem>newData){
+        gameItems.clear();
+        for (int i = 0; i < newData.size(); i++) {
+            Log.d("benzsdsdsdsdsds", "updateData: "+newData.get(i).isCardShown());
+        }
+
+
+        gameItems.addAll(newData);
+        Log.d("benzsdsdsdsdsds", "gameItems: "+gameItems.size());
+        notifyDataSetChanged();
     }
 
     @Override
@@ -55,7 +68,7 @@ public class GameItemAdapter extends RecyclerView.Adapter<GameItemAdapter.GameIt
             if (gameItem.isGameStared()) {
                 holder.imageView.setVisibility(View.INVISIBLE); // **Hide clicked item's image view**
                 holder.textView.setVisibility(View.VISIBLE); // **Show clicked item's text view**
-                onItemClickListener.onItemClick(gameItem);
+                onItemClickListener.onItemClick(gameItem,position);
             }
             else {
                 YoYo.with(Techniques.Shake).duration(500).repeat(3).playOn(holder.imageView);
